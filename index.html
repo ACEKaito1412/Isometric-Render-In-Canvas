@@ -1,0 +1,152 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body
+    style="
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-content: center;
+    "
+  >
+    <canvas
+      id="myDraw"
+      width="1000"
+      height="550"
+      style="border: 1px solid black"
+    ></canvas>
+    <script>
+      // Define the size of the tile map
+      var rows = 30;
+      var cols = 30;
+
+      // Define the number of different tile types
+      var numTileTypes = 6; // Adjust this value based on the number of tile types you have
+
+      // Initialize an empty tile map
+      var tileMap = [];
+
+      // Populate the tile map randomly
+      for (var y = 0; y < rows; y++) {
+        // Initialize an empty row
+        var row = [];
+        for (var x = 0; x < cols; x++) {
+          // Generate a random tile value between 0 and numTileTypes - 1
+          var randomTile = Math.floor(Math.random() * numTileTypes);
+          // Add the random tile value to the row
+          row.push(randomTile);
+        }
+        // Add the populated row to the tile map
+        tileMap.push(row);
+      }
+
+      // Output the randomly populated tile map to the console
+      console.log(tileMap);
+
+      var tilesetImage = new Image();
+      tilesetImage.src = "tile.png";
+      var numberOfTilesPerRow = 3;
+
+      // Wait for the tileset image to load
+      tilesetImage.onload = function () {
+        // Once the tileset image is loaded, render the map
+        var canvas = document.getElementById("myDraw");
+        var ctx = canvas.getContext("2d");
+
+        // Define the size of each tile
+        var tileSize = 32; // Assuming each tile is 32x32 pixels
+
+        // Loop through the tile map data and draw each tile
+        for (var y = 0; y < tileMap.length; y++) {
+          for (var x = 0; x < tileMap[y].length; x++) {
+            // Get the tile index from the tile map data
+
+            var tileIndex = tileMap[y][x];
+
+            if (tileIndex != 0) {
+              // Calculate the position to draw the tile on the canvas
+              // the tile
+              var posX = 500 + (x * 31 - y * 31) / 2;
+              var posY = (x * 16 + y * 16) / 2;
+
+              // Draw the tile onto the canvas
+              // the soil
+              var posXB = 500 + (x * 31 - y * 31) / 2;
+              var posYB = (x * 16 + y * 16) / 2 + 8;
+
+              var posXc = 500 + (x * 31 - y * 31) / 2;
+              var posYc = (x * 16 + y * 16) / 2 + 16;
+
+              ctx.drawImage(
+                tilesetImage, // Tileset image
+                (10 % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
+                Math.floor(10 / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
+                tileSize, // Width of the source tile
+                tileSize, // Height of the source tile
+                posXc, // Destination x coordinate on the canvas
+                posYc, // Destination y coordinate on the canvas
+                tileSize, // Width of the drawn tile on the canvas
+                tileSize // Height of the drawn tile on the canvas
+              );
+              // Draw the tile onto the canvas
+              ctx.drawImage(
+                tilesetImage, // Tileset image
+                (3 % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
+                Math.floor(3 / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
+                tileSize, // Width of the source tile
+                tileSize, // Height of the source tile
+                posXB, // Destination x coordinate on the canvas
+                posYB, // Destination y coordinate on the canvas
+                tileSize, // Width of the drawn tile on the canvas
+                tileSize // Height of the drawn tile on the canvas
+              );
+
+              ctx.drawImage(
+                tilesetImage, // Tileset image
+                (tileIndex % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
+                Math.floor(tileIndex / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
+                tileSize, // Width of the source tile
+                tileSize, // Height of the source tile
+                posX, // Destination x coordinate on the canvas
+                posY, // Destination y coordinate on the canvas
+                tileSize, // Width of the drawn tile on the canvas
+                tileSize // Height of the drawn tile on the canvas
+              );
+
+              if (tileIndex == 1) {
+                var posXT = 500 + (x * 31 - y * 31) / 2;
+                var posYT = (x * 16 + y * 16) / 2 - 8;
+
+                var number = Math.floor(Math.random() * 3);
+                let tile = 4;
+                if (number != 1) {
+                  tile = 5;
+                }
+                ctx.drawImage(
+                  tilesetImage, // Tileset image
+                  (tile % 7) * tileSize, // Source x coordinate within the tileset
+                  Math.floor(tile / 7) * tileSize, // Source y coordinate within the tileset
+                  tileSize, // Width of the source tile
+                  tileSize, // Height of the source tile
+                  posXT, // Destination x coordinate on the canvas
+                  posYT, // Destination y coordinate on the canvas
+                  tileSize, // Width of the drawn tile on the canvas
+                  tileSize // Height of the drawn tile on the canvas
+                );
+              }
+            }
+          }
+        }
+      };
+
+      function reloadScreen() {
+        location.reload();
+      }
+
+      setInterval(reloadScreen, 1000);
+    </script>
+  </body>
+</html>
