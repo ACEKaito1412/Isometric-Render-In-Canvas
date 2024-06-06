@@ -1,2 +1,6 @@
 # Isometric-Render-In-Canvas
-this is a simple rendering of isometric tile in javascript using canva.
+This is a simple rendering of isometric tile in javascript in canvas.
+
+And the tilemap is not mine please and
+just find it beautiful to work, check the link here:
+https://nulldreams.itch.io/pixel-isometric-tiles
