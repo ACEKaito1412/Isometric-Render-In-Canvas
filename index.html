@@ -3,150 +3,173 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <style>
+      body {
+        background-color: black;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+      }
+      .container {
+        width: 247px;
+        margin-top: 15px;
+        padding: 5;
+        color: rgba(206, 187, 187, 0.842);
+      }
+    </style>
   </head>
-  <body
-    style="
-      background-color: black;
-      display: flex;
-      justify-content: center;
-      align-content: center;
-    "
-  >
-    <canvas
-      id="myDraw"
-      width="1000"
-      height="550"
-      style="border: 1px solid black"
-    ></canvas>
+  <body>
+    <div
+      style="
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+        align-content: center;
+      "
+    >
+      <div style="background: rgba(255, 255, 255, 0.3); margin-right: 10">
+        <canvas id="Draw" width="820" height="500"></canvas>
+      </div>
+      <div>
+        <canvas id="Heightmap" width="257" height="257"></canvas>
+        <div class="container">
+          <h2>Isometric Render In Canvas</h2>
+          <p style="font-size: 13">
+            Drag your mouse over the height map to see changes on the Isometric
+            tiles.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <script>
-      // Define the size of the tile map
-      var rows = 30;
-      var cols = 30;
+      // Change the scale factor as needed
+      var canvas = document.getElementById("Heightmap");
+      ctx = canvas.getContext("2d");
 
-      // Define the number of different tile types
-      var numTileTypes = 6; // Adjust this value based on the number of tile types you have
+      const heightImg = new Image();
+      heightImg.src = "Heightmap.png";
+      // heightImg.crossOrigin = "Anonymous";
 
-      // Initialize an empty tile map
-      var tileMap = [];
+      heightImg.onload = function () {
+        drawHeightMap();
+      };
 
-      // Populate the tile map randomly
-      for (var y = 0; y < rows; y++) {
-        // Initialize an empty row
-        var row = [];
-        for (var x = 0; x < cols; x++) {
-          // Generate a random tile value between 0 and numTileTypes - 1
-          var randomTile = Math.floor(Math.random() * numTileTypes);
-          // Add the random tile value to the row
-          row.push(randomTile);
-        }
-        // Add the populated row to the tile map
-        tileMap.push(row);
+      function drawHeightMap() {
+        ctx.clearRect(0, 0, draw.width, draw.height);
+        // Draw the height map image onto the canvas
+        ctx.drawImage(heightImg, 0, 0, canvas.width, canvas.height);
+
+        // Generate terrain using the height map
+        generateTerrainFromHeightMap();
       }
 
-      // Output the randomly populated tile map to the console
-      console.log(tileMap);
+      let terrain = [];
+      var sx = Math.floor(Math.random() * (canvas.height * 0.5));
+      var sy = Math.floor(Math.random() * canvas.width * 0.5);
 
+      canvas.addEventListener("mousemove", function (event) {
+        const rect = canvas.getBoundingClientRect();
+        sx = Math.floor(event.clientX - rect.left);
+        sy = Math.floor(event.clientY - rect.top);
+        generateTerrainFromHeightMap();
+        drawHeightMap();
+        drawTerain();
+      });
+
+      function generateTerrainFromHeightMap() {
+        terrain = [];
+        const terrainData = ctx.getImageData(sx, sy, 50, 50).data;
+        const terrainWidth = 50; // Width of the terrain grid
+        const terrainHeight = 50; // Height of the terrain grid
+
+        // Convert pixel values to height values
+        for (let y = 0; y < terrainHeight; y++) {
+          for (let x = 0; x < terrainWidth; x++) {
+            const index = (y * terrainWidth + x) * 4; // Calculate the index of the current pixel
+            // For grayscale images, use any of the RGB channels to get the height value
+            const height = Math.round(terrainData[index] * 0.09); // Use red channel as height value
+
+            // Store height value in terrain array along with x and y coordinates
+            terrain.push({ x, y, height });
+          }
+        }
+
+        ctx.beginPath();
+        ctx.rect(sx, sy, 50, 50); // Define rectangle position and size
+        ctx.lineWidth = 2; // Set line width
+        ctx.strokeStyle = "red"; // Set stroke color
+        ctx.stroke(); // Draw the rectangle outline
+
+        // Now you have the terrain data in the 'terrain' array
+        // Each object in the array contains the x, y coordinates and the corresponding height value
+        // You can use this data to render the terrain or perform further processing
+      }
+
+      var draw = document.getElementById("Draw");
+      var ctxDraw = draw.getContext("2d");
+      var tileSize = 32; // Assuming each tile is 32x32 pixels
       var tilesetImage = new Image();
       tilesetImage.src = "tile.png";
       var numberOfTilesPerRow = 3;
 
-      // Wait for the tileset image to load
       tilesetImage.onload = function () {
-        // Once the tileset image is loaded, render the map
-        var canvas = document.getElementById("myDraw");
-        var ctx = canvas.getContext("2d");
-
-        // Define the size of each tile
-        var tileSize = 32; // Assuming each tile is 32x32 pixels
-
-        // Loop through the tile map data and draw each tile
-        for (var y = 0; y < tileMap.length; y++) {
-          for (var x = 0; x < tileMap[y].length; x++) {
-            // Get the tile index from the tile map data
-
-            var tileIndex = tileMap[y][x];
-
-            if (tileIndex != 0) {
-              // Calculate the position to draw the tile on the canvas
-              // the tile
-              var posX = 500 + (x * 31 - y * 31) / 2;
-              var posY = (x * 16 + y * 16) / 2;
-
-              // Draw the tile onto the canvas
-              // the soil
-              var posXB = 500 + (x * 31 - y * 31) / 2;
-              var posYB = (x * 16 + y * 16) / 2 + 8;
-
-              var posXc = 500 + (x * 31 - y * 31) / 2;
-              var posYc = (x * 16 + y * 16) / 2 + 16;
-
-              ctx.drawImage(
-                tilesetImage, // Tileset image
-                (10 % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
-                Math.floor(10 / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
-                tileSize, // Width of the source tile
-                tileSize, // Height of the source tile
-                posXc, // Destination x coordinate on the canvas
-                posYc, // Destination y coordinate on the canvas
-                tileSize, // Width of the drawn tile on the canvas
-                tileSize // Height of the drawn tile on the canvas
-              );
-              // Draw the tile onto the canvas
-              ctx.drawImage(
-                tilesetImage, // Tileset image
-                (3 % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
-                Math.floor(3 / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
-                tileSize, // Width of the source tile
-                tileSize, // Height of the source tile
-                posXB, // Destination x coordinate on the canvas
-                posYB, // Destination y coordinate on the canvas
-                tileSize, // Width of the drawn tile on the canvas
-                tileSize // Height of the drawn tile on the canvas
-              );
-
-              ctx.drawImage(
-                tilesetImage, // Tileset image
-                (tileIndex % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
-                Math.floor(tileIndex / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
-                tileSize, // Width of the source tile
-                tileSize, // Height of the source tile
-                posX, // Destination x coordinate on the canvas
-                posY, // Destination y coordinate on the canvas
-                tileSize, // Width of the drawn tile on the canvas
-                tileSize // Height of the drawn tile on the canvas
-              );
-
-              if (tileIndex == 1) {
-                var posXT = 500 + (x * 31 - y * 31) / 2;
-                var posYT = (x * 16 + y * 16) / 2 - 8;
-
-                var number = Math.floor(Math.random() * 3);
-                let tile = 4;
-                if (number != 1) {
-                  tile = 5;
-                }
-                ctx.drawImage(
-                  tilesetImage, // Tileset image
-                  (tile % 7) * tileSize, // Source x coordinate within the tileset
-                  Math.floor(tile / 7) * tileSize, // Source y coordinate within the tileset
-                  tileSize, // Width of the source tile
-                  tileSize, // Height of the source tile
-                  posXT, // Destination x coordinate on the canvas
-                  posYT, // Destination y coordinate on the canvas
-                  tileSize, // Width of the drawn tile on the canvas
-                  tileSize // Height of the drawn tile on the canvas
-                );
-              }
-            }
-          }
-        }
+        drawTerain();
       };
 
-      function reloadScreen() {
-        location.reload();
-      }
+      function drawTerain() {
+        ctxDraw.clearRect(0, 0, draw.width, draw.height);
+        for (var i = 0; i < terrain.length; i++) {
+          tileIndex = 3;
+          tileMap = terrain[i];
 
-      setInterval(reloadScreen, 3000);
+          var height = tileMap.height;
+          var posX = 400 + (tileMap.x * 16 - tileMap.y * 16) / 2;
+          var posY = 50 + (tileMap.x * 8 + tileMap.y * 8) / 2;
+
+          for (var j = 0; j < height; j++) {
+            var posYunder = posY - 4 * j;
+
+            if (j == height - 1) {
+              tileIndex = 2;
+            }
+
+            ctxDraw.drawImage(
+              tilesetImage, // Tileset image
+              (tileIndex % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
+              Math.floor(tileIndex / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
+              tileSize, // Width of the source tile
+              tileSize, // Height of the source tile
+              posX, // Destination x coordinate on the canvas
+              posYunder, // Destination y coordinate on the canvas
+              16, // Width of the drawn tile on the canvas
+              16 // Height of the drawn tile on the canvas
+            );
+          }
+
+          if (height <= 1) {
+            var multiply = 0;
+            if (height == 0) {
+              multiply = 1;
+            } else if (height == 1) {
+              multiply = 1;
+            }
+            var posYunder = posY - 4 * multiply;
+            tileIndex = 9;
+            ctxDraw.drawImage(
+              tilesetImage, // Tileset image
+              (tileIndex % numberOfTilesPerRow) * tileSize, // Source x coordinate within the tileset
+              Math.floor(tileIndex / numberOfTilesPerRow) * tileSize, // Source y coordinate within the tileset
+              tileSize, // Width of the source tile
+              tileSize, // Height of the source tile
+              posX, // Destination x coordinate on the canvas
+              posYunder, // Destination y coordinate on the canvas
+              16, // Width of the drawn tile on the canvas
+              16 // Height of the drawn tile on the canvas
+            );
+          }
+        }
+      }
     </script>
   </body>
 </html>
